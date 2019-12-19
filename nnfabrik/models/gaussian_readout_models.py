@@ -11,6 +11,7 @@ from mlutils.layers.cores import DepthSeparableConv2d, Core2d, Stacked2dCore
 from ..utility.nn_helpers import get_io_dims, get_module_output, set_random_seed, get_dims_for_loader_dict
 from mlutils import regularizers
 from mlutils.layers.readouts import PointPooled2d
+from .pretrained_models import TransferLearningCore
 
 
 class DepthSeparableCore(Core2d, nn.Module):
@@ -426,6 +427,83 @@ def stacked2d_core_gaussian_readout(dataloaders, seed, hidden_channels=32, input
                                    init_sigma_range=init_sigma_range,
                                    bias=readout_bias,
                                    gamma_readout=gamma_readout)
+
+    # initializing readout bias to mean response
+    for k in dataloaders:
+        readout[k].bias.data = dataloaders[k].dataset[:].targets.mean(0)
+
+    model = Encoder(core, readout, elu_offset)
+
+    return model
+
+
+
+def vgg_core_gauss_readout(dataloaders, seed,
+                           input_channels=1, tr_model_fn='vgg16', # begin of core args
+                           model_layer=11, momentum=0.1, final_batchnorm=True,
+                           final_nonlinearity=True, bias=False,
+                           init_mu_range=0.4, init_sigma_range=0.6, readout_bias=True, # begin or readout args
+                           gamma_readout=0.002, elu_offset=-1):
+    """
+    A Model class of a predefined core (using models from torchvision.models). Can be initialized pretrained or random.
+    Can also be set to be trainable or not, independent of initialization.
+
+    Args:
+        dataloaders: a dictionary of train-dataloaders, one loader per session
+            in the format {'data_key': dataloader object, .. }
+        seed: ..
+        pool_steps:
+        pool_kern:
+        readout_bias:
+        init_range:
+        gamma_readout:
+
+    Returns:
+    """
+
+    if "train" in dataloaders.keys():
+        dataloaders = dataloaders["train"]
+
+    session_shape_dict = get_dims_for_loader_dict(dataloaders)
+    n_neurons_dict = {k: v['targets'][1] for k, v in session_shape_dict.items()}
+    in_shapes_dict = {k: v['inputs'] for k, v in session_shape_dict.items()}
+    input_channels = [v['inputs'][1] for _, v in session_shape_dict.items()]
+    assert np.unique(input_channels).size == 1, "all input channels must be of equal size"
+
+    class Encoder(nn.Module):
+        """
+        helper nn class that combines the core and readout into the final model
+        """
+        def __init__(self, core, readout, elu_offset):
+            super().__init__()
+            self.core = core
+            self.readout = readout
+            self.offset = elu_offset
+
+        def forward(self, x, data_key=None, **kwargs):
+            x = self.core(x)
+            x = self.readout(x, data_key=data_key)
+            return F.elu(x + self.offset) + 1
+
+        def regularizer(self, data_key):
+            return self.readout.regularizer(data_key=data_key) + self.core.regularizer()
+
+    set_random_seed(seed)
+
+    core = TransferLearningCore(input_channels=input_channels[0],
+                                tr_model_fn=tr_model_fn,
+                                model_layer=model_layer,
+                                momentum=momentum,
+                                final_batchnorm=final_batchnorm,
+                                final_nonlinearity=final_nonlinearity,
+                                bias=bias)
+
+    readout = MultiGaussReadout(core, in_shape_dict=in_shapes_dict,
+                                n_neurons_dict=n_neurons_dict,
+                                init_mu_range=init_mu_range,
+                                bias=readout_bias,
+                                init_sigma_range=init_sigma_range,
+                                gamma_readout=gamma_readout)
 
     # initializing readout bias to mean response
     for k in dataloaders:

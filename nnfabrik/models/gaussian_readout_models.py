@@ -100,7 +100,7 @@ class DepthSeparableCore(Core2d, nn.Module):
         h_pad = ((hidden_kern - 1) * hidden_dilation + 1) // 2
         for l in range(1, self.layers):
             layer = OrderedDict()
-            layer["ds_conv"] = DepthSeparableConv2d(hidden_channels,hidden_channels, hidden_kern,bias=False)
+            layer["ds_conv"] = DepthSeparableConv2d(hidden_channels,hidden_channels, hidden_kern, padding=h_pad,bias=False)
             if batch_norm:
                 layer["norm"] = nn.BatchNorm2d(hidden_channels, momentum=momentum)
             if final_nonlinearity or l < self.layers - 1:

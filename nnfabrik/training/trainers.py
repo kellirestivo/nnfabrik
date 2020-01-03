@@ -1,3 +1,4 @@
+import datajoint as dj
 import torch
 from functools import partial
 from mlutils.measures import *
@@ -171,7 +172,7 @@ def early_stop_trainer(model, seed, stop_function='corr_stop',
                                              tolerance=tolerance, restore_best=restore_best,
                                              tracker=tracker, scheduler=scheduler, lr_decay_steps=lr_decay_steps):
             optimizer.zero_grad()
-
+            dj.conn().ping()
             # reports the entry of the current epoch for all tracked objectives
             if verbose:
                 for key in tracker.log.keys():

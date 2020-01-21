@@ -12,7 +12,7 @@ def early_stop_trainer(model, seed, stop_function='corr_stop',
                        loss_function='PoissonLoss', epoch=0, interval=1, patience=10, max_iter=75,
                        maximize=True, tolerance=0.001, device='cuda', restore_best=True,
                        lr_init=0.005, lr_decay_factor=0.3, min_lr=0.0001, optim_batch_step=True,
-                       verbose=True, lr_decay_steps=3, dataloaders=None, **kwargs):
+                       verbose=True, lr_decay_steps=3, dataloaders=None, gauss_sample=False, **kwargs):
     """"
     Args:
         model: PyTorch nn module
@@ -174,6 +174,7 @@ def early_stop_trainer(model, seed, stop_function='corr_stop',
                                              tracker=tracker, scheduler=scheduler, lr_decay_steps=lr_decay_steps):
             optimizer.zero_grad()
 
+
             # reports the entry of the current epoch for all tracked objectives
             if verbose:
                 for key in tracker.log.keys():
@@ -183,7 +184,11 @@ def early_stop_trainer(model, seed, stop_function='corr_stop',
             for batch_no, (data_key, data) in tqdm(enumerate(LongCycler(train_loader)),
                                                       desc='Epoch {}'.format(epoch)):
 
-                loss = full_objective(model, data_key, *data)
+                if (epoch>5) and (gauss_sample):
+                    loss = full_objective(model, data_key, *data, sample=False)
+                else:
+                    loss = full_objective(model, data_key, *data)
+
                 if (batch_no+1) % optim_step_count == 0:
                     optimizer.step()
                     optimizer.zero_grad()

@@ -225,7 +225,7 @@ def ds_core_gauss_readout(dataloaders, seed, hidden_channels=32, input_kern=13, 
 
         def forward(self, x, data_key=None, **kwargs):
             x = self.core(x)
-            x = self.readout(x, data_key=data_key)
+            x = self.readout(x, data_key=data_key, **kwargs)
             return F.elu(x + self.offset) + 1
 
         def regularizer(self, data_key):
@@ -309,7 +309,7 @@ def ds_core_point_readout(dataloaders, seed, hidden_channels=32, input_kern=13, 
 
         def forward(self, x, data_key=None, **kwargs):
             x = self.core(x)
-            x = self.readout(x, data_key=data_key)
+            x = self.readout(x, data_key=data_key, **kwargs)
             return F.elu(x + self.offset) + 1
 
         def regularizer(self, data_key):
@@ -394,7 +394,7 @@ def stacked2d_core_gaussian_readout(dataloaders, seed, hidden_channels=32, input
 
         def forward(self, x, data_key=None, **kwargs):
             x = self.core(x)
-            x = self.readout(x, data_key=data_key)
+            x = self.readout(x, data_key=data_key, **kwargs)
             return F.elu(x + self.offset) + 1
 
         def regularizer(self, data_key):

@@ -208,11 +208,7 @@ def early_stop_trainer(model, seed, stop_function='corr_stop',
     # get stopping criterion from helper functions based on keyword
     stop_closure = eval(stop_function)
 
-    tracker = MultipleObjectiveTracker(correlation=partial(corr_stop, model),
-                                       poisson_loss=partial(poisson_stop, model),
-                                       poisson_loss_val=partial(poisson_stop, model, val),
-                                       readout_l1=partial(readout_regularizer_stop, model),
-                                       core_regularizer=partial(core_regularizer_stop, model))
+    tracker = MultipleObjectiveTracker(correlation=partial(corr_stop, model))
 
     trainable_params = [p for p in list(model.parameters()) if p.requires_grad]
     optimizer = torch.optim.Adam(trainable_params, lr=lr_init)

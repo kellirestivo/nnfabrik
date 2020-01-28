@@ -43,9 +43,9 @@ def csrf_v1(datafiles, imagepath, batch_size, seed,
 
     images = images[:,:,:,None]
     _, h, w = images.shape[:3]
-    img_mean = np.mean(images)
-    img_std = np.std(images)
-
+    images_cropped = images[:,crop:h - crop:subsample, crop:w - crop:subsample,:]
+    img_mean = np.mean(images_cropped)
+    img_std = np.std(images_cropped)
     all_train_ids, all_validation_ids = get_validation_split(n_images=images.shape[0],
                                                                 train_frac=train_frac,
                                                                 seed=seed)

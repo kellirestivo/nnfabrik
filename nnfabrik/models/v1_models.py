@@ -101,7 +101,8 @@ def stacked2d_core_point_readout(dataloaders, seed, hidden_channels=32, input_ke
                          hidden_dilation=hidden_dilation,
                          laplace_padding=laplace_padding,
                          input_regularizer=input_regularizer,
-                         stack=stack)
+                         stack=stack,
+                         use_avg_reg=False)
 
     readout = PointPooled2dReadout(core, in_shape_dict=in_shapes_dict,
                                    n_neurons_dict=n_neurons_dict,

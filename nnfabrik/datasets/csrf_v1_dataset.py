@@ -35,7 +35,7 @@ def csrf_v1(datafiles, imagepath, batch_size, seed,
     """
 
     # initialize dataloaders as empty dict
-    dataloaders = {'train': {}, 'val': {}, 'test': {}}
+    dataloaders = {'train': {}, 'validation': {}, 'test': {}}
 
     if imagepath:
         with open(imagepath, "rb") as pkl:
@@ -62,13 +62,15 @@ def csrf_v1(datafiles, imagepath, batch_size, seed,
         subject_ids = raw_data["subject_id"]
         data_key = str(raw_data["session_id"])
         repetitions_test = raw_data["testing_repetitions"]
-
         responses_train = raw_data["training_responses"].astype(np.float32)
         responses_test = raw_data["testing_responses"].astype(np.float32)
         training_image_ids = raw_data["training_image_ids"]
         testing_image_ids = raw_data["testing_image_ids"]
-
         responses_test = responses_test.transpose((2, 0, 1))
+
+        # add unit ID
+        unit_indices = raw_data["unit_indices"]
+
         responses_train = responses_train.transpose((2, 0, 1))
 
         images_train = images[training_image_ids, crop:h - crop:subsample, crop:w - crop:subsample]
@@ -93,7 +95,7 @@ def csrf_v1(datafiles, imagepath, batch_size, seed,
         test_loader = get_loader_csrf_v1(images_test, responses_test, batch_size=batch_size, shuffle=False)
 
         dataloaders["train"][data_key] = train_loader
-        dataloaders["val"][data_key] = val_loader
+        dataloaders["validation"][data_key] = val_loader
         dataloaders["test"][data_key] = test_loader
 
     return dataloaders

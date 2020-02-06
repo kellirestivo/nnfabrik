@@ -35,7 +35,7 @@ def sysident_v1(datafiles, imagepath, batch_size, seed,
     """
 
     # initialize dataloaders as empty dict
-    dataloaders = {'train': {}, 'val': {}, 'test': {}}
+    dataloaders = {'train': {}, 'validation': {}, 'test': {}}
 
     if imagepath:
         with open(imagepath, "rb") as pkl:
@@ -89,7 +89,7 @@ def sysident_v1(datafiles, imagepath, batch_size, seed,
         test_loader = get_loader_csrf_v1(images_test, responses_test, batch_size=batch_size, shuffle=False)
 
         dataloaders["train"][data_key] = train_loader
-        dataloaders["val"][data_key] = val_loader
+        dataloaders["validation"][data_key] = val_loader
         dataloaders["test"][data_key] = test_loader
 
     return dataloaders

@@ -13,7 +13,7 @@ from .utility.nnf_helper import split_module_name, dynamic_import, cleanup_numpy
 dj.config['stores'] = {
     'minio': {    #  store in s3
         'protocol': 's3',
-        'endpoint': 'cantor.mvl6.uni-tuebingen.de:9000',
+        'endpoint': os.environ.get('MINIO_ENDPOINT', 'DUMMY_ENDPOINT'),
         'bucket': 'nnfabrik',
         'location': 'dj-store',
         'access_key': os.environ.get('MINIO_ACCESS_KEY', 'FAKEKEY'),
@@ -77,7 +77,7 @@ class Model(dj.Manual):
         """
         try:
             resolve_model(model_fn)
-        except NameError, TypeError as e:
+        except (NameError, TypeError) as e:
             warnings.warn(str(e) + '\nTable entry rejected')
             return
 
@@ -125,7 +125,7 @@ class Dataset(dj.Manual):
 
         try:
             resolve_data(dataset_fn)
-        except NameError, TypeError as e:
+        except (NameError, TypeError) as e:
             warnings.warn(str(e) + '\nTable entry rejected')
             return
 
@@ -191,7 +191,7 @@ class Trainer(dj.Manual):
         """
         try:
             resolve_trainer(trainer_fn)
-        except NameError, TypeError as e:
+        except (NameError, TypeError) as e:
             warnings.warn(str(e) + '\nTable entry rejected')
             return
 

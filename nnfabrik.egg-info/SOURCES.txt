@@ -4,12 +4,13 @@ nnfabrik/__init__.py
 nnfabrik/builder.py
 nnfabrik/legacy.py
 nnfabrik/main.py
+nnfabrik/template.py
 nnfabrik.egg-info/PKG-INFO
 nnfabrik.egg-info/SOURCES.txt
 nnfabrik.egg-info/dependency_links.txt
 nnfabrik.egg-info/top_level.txt
 nnfabrik/datasets/__init__.py
-nnfabrik/datasets/csrf_v1_dataset.py
+nnfabrik/datasets/csrf_legacy_loaders.py
 nnfabrik/datasets/mouse.py
 nnfabrik/datasets/movies.py
 nnfabrik/datasets/sysident_v1_dataset.py
